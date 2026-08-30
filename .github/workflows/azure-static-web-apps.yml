@@ -53,7 +53,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
           app_location: "/"
-          output_location: "out"
+          app_artifact_location: "out"
           skip_app_build: true
 
       - name: Deployment skipped (missing secret)
