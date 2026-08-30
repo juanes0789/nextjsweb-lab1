@@ -34,14 +34,13 @@ jobs:
 
       - name: Verify static export
         run: |
-          echo "=== Project root ==="
-          ls -la
+          echo "=== Static export ==="
+          ls -lah out
 
-          echo "=== out directory ==="
-          ls -la out
-
-          echo "=== Checking index.html ==="
-          test -f out/index.html
+          if [ ! -f "out/index.html" ]; then
+            echo "ERROR: out/index.html was not generated"
+            exit 1
+          fi
 
           echo "Static export verified successfully."
 
@@ -52,13 +51,28 @@ jobs:
           azure_static_web_apps_api_token: ${{ env.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
+
+          # IMPORTANT:
+          # app_location points directly to the already-built
+          # static application.
           app_location: "out"
+
+          # No additional output directory because
+          # app_location already contains the final files.
           output_location: ""
+
+          # Do not let Azure/Oryx rebuild the Next.js application.
           skip_app_build: true
 
-      - name: Deployment skipped (missing secret)
+          # This application has no Azure Functions API.
+          api_location: ""
+          skip_api_build: true
+
+          # Tell Azure this is a Next.js static export.
+          is_static_export: true
+
+      - name: Deployment skipped
         if: ${{ env.AZURE_STATIC_WEB_APPS_API_TOKEN == '' }}
         run: |
           echo "AZURE_STATIC_WEB_APPS_API_TOKEN is not set."
           echo "Build succeeded, but deployment was skipped."
-          echo "Add the secret to enable automatic deployment."
